@@ -72,8 +72,31 @@ func _follow_camera(delta: float) -> void:
 
 func _check_fall() -> void:
 	if echo.global_position.y < respawn_y_threshold:
-		echo.global_position = _last_safe_pos
+		echo.global_position = _clear_respawn_pos(_last_safe_pos)
 		echo.velocity        = Vector3.ZERO
 		echo.take_damage(1)
 		# If take_damage triggered _die() (hp hit 0), _die() already overwrote
 		# global_position with SPAWN_POSITION — so death respawn is handled automatically.
+
+## Returns _last_safe_pos nudged horizontally until it isn't overlapping any live enemy.
+func _clear_respawn_pos(base: Vector3) -> Vector3:
+	const MIN_DIST := 1.2   # minimum X clearance from an enemy center
+	const VERT_TOL := 1.0   # only care about enemies within this vertical band
+	var pos := base
+	for _iter in 4:
+		var clear := true
+		for enemy in get_tree().get_nodes_in_group("enemy"):
+			var e := enemy as Node3D
+			if e == null or not e.visible:
+				continue
+			if absf(pos.y - e.global_position.y) > VERT_TOL:
+				continue
+			var dx := pos.x - e.global_position.x
+			if absf(dx) < MIN_DIST:
+				# Push away; if directly on top choose the direction the player was facing
+				var push := signf(dx) if absf(dx) > 0.05 else echo.get_node("MovementComponent").facing_direction
+				pos.x += push * (MIN_DIST - absf(dx) + 0.1)
+				clear = false
+		if clear:
+			break
+	return pos
