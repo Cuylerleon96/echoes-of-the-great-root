@@ -6,6 +6,7 @@
 [ext_resource type="Script" path="res://characters/enemy/pouncer.gd" id="4"]
 [ext_resource type="Script" path="res://characters/enemy/flyer.gd" id="5"]
 [ext_resource type="Script" path="res://ui/hud.gd" id="6"]
+[ext_resource type="Script" path="res://ui/touch_controls.gd" id="7"]
 
 [sub_resource type="StandardMaterial3D" id="mat_grey"]
 albedo_color = Color(0.55, 0.55, 0.6, 1)
@@ -329,3 +330,6 @@ shape = SubResource("enemy_detect_shape")
 
 [node name="HUD" type="CanvasLayer" parent="."]
 script = ExtResource("6")
+
+[node name="TouchControls" type="CanvasLayer" parent="."]
+script = ExtResource("7")
