@@ -94,9 +94,6 @@ size = Vector3(0.5, 0.6, 0.5)
 [sub_resource type="BoxShape3D" id="enemy_detect_shape"]
 size = Vector3(0.45, 0.55, 0.45)
 
-[sub_resource type="BoxShape3D" id="flyer_hurt_shape"]
-size = Vector3(0.45, 0.55, 0.45)
-
 [sub_resource type="BoxMesh" id="enemy_mesh_box"]
 size = Vector3(0.5, 0.6, 0.5)
 
@@ -308,7 +305,7 @@ collision_layer = 0
 collision_mask = 2
 
 [node name="CollisionShape3D" type="CollisionShape3D" parent="Enemies/Flyer1/HurtZone" unique_id=550200005]
-shape = SubResource("flyer_hurt_shape")
+shape = SubResource("enemy_detect_shape")
 
 [node name="Flyer2" type="CharacterBody3D" parent="Enemies" unique_id=550200006]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 38.0, 6.5, 0)
@@ -328,7 +325,7 @@ collision_layer = 0
 collision_mask = 2
 
 [node name="CollisionShape3D" type="CollisionShape3D" parent="Enemies/Flyer2/HurtZone" unique_id=550200010]
-shape = SubResource("flyer_hurt_shape")
+shape = SubResource("enemy_detect_shape")
 
 [node name="HUD" type="CanvasLayer" parent="."]
 script = ExtResource("6")

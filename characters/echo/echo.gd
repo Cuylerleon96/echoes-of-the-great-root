@@ -20,6 +20,10 @@ extends CharacterBody3D
 const SPAWN_POSITION := Vector3(0.0, 0.35, 0.0)
 const INVINCIBLE_DURATION: float = 1.0
 const STUN_RANGE: float = 2.2
+const STUN_COOLDOWN: float = 1.5
+
+@export var knockback_speed: float = 7.0
+@export var knockback_rise: float = 4.5
 
 var max_hp: int = 3
 var current_hp: int = 3
@@ -51,9 +55,6 @@ func _ready() -> void:
 	_setup_stun_light()
 	_setup_particles()
 
-@export var knockback_speed: float = 7.0
-@export var knockback_rise: float = 4.5
-
 func take_damage(amount: int, knockback_dir: float = 0.0) -> void:
 	if _invincible_timer > 0.0:
 		return
@@ -82,7 +83,7 @@ func _unhandled_input(event: InputEvent) -> void:
 func _try_stun() -> void:
 	if _stun_cooldown > 0.0:
 		return
-	_stun_cooldown = 1.5
+	_stun_cooldown = STUN_COOLDOWN
 	_flash_stun_light()
 	_dust_stun.restart()
 	for enemy in get_tree().get_nodes_in_group("enemy"):
@@ -266,10 +267,10 @@ func _update_particles() -> void:
 
 func _spawn_jump_dust() -> void:
 	var foot := global_position + Vector3(0.0, -0.3, 0.0)
-	_spawn_dust_puff(foot + Vector3(-0.16, 0.0, 0.0), -1.0)
-	_spawn_dust_puff(foot + Vector3( 0.16, 0.0, 0.0),  1.0)
+	_spawn_dust_puff(foot + Vector3(-0.16, 0.0, 0.0))
+	_spawn_dust_puff(foot + Vector3( 0.16, 0.0, 0.0))
 
-func _spawn_dust_puff(world_pos: Vector3, side: float) -> void:
+func _spawn_dust_puff(world_pos: Vector3) -> void:
 	var mat := StandardMaterial3D.new()
 	mat.transparency = BaseMaterial3D.TRANSPARENCY_ALPHA
 	mat.shading_mode  = BaseMaterial3D.SHADING_MODE_UNSHADED
@@ -287,7 +288,7 @@ func _spawn_dust_puff(world_pos: Vector3, side: float) -> void:
 	puff.global_position = world_pos
 
 	# Squash outward (wider) and flatten (shorter) — classic cartoon ground puff
-	var end_scale := Vector3(1.7 + absf(side) * 0.2, 0.18, 1.7)
+	var end_scale := Vector3(1.9, 0.18, 1.9)
 	var tween := puff.create_tween().set_parallel(true)
 	tween.tween_property(puff, "scale", end_scale, 0.30) \
 			.set_trans(Tween.TRANS_QUAD).set_ease(Tween.EASE_OUT)

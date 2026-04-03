@@ -16,8 +16,8 @@ const COLOR_HEART_EMPTY := Color(0.22, 0.08, 0.08)
 const COLOR_BAR_FILL    := Color(0.78, 0.95, 1.0)    # spirit blue — matches stun light
 const COLOR_BAR_BG      := Color(0.10, 0.13, 0.18)
 
-# Must match echo.gd
-const STUN_COOLDOWN := 1.5
+# Matches Echo.STUN_COOLDOWN — read from the player at runtime
+var _stun_cooldown_max: float = 1.5
 
 var _player: Node         = null
 var _hearts: Array[ColorRect] = []
@@ -33,6 +33,7 @@ func _process(_delta: float) -> void:
 		var group := get_tree().get_nodes_in_group("player")
 		if not group.is_empty():
 			_player = group[0]
+			_stun_cooldown_max = _player.STUN_COOLDOWN
 		return
 	_update_hearts()
 	_update_bar()
@@ -77,5 +78,5 @@ func _update_hearts() -> void:
 
 func _update_bar() -> void:
 	# 0 cooldown remaining → bar full.  Full cooldown → bar empty.
-	var ratio := 1.0 - clampf(_player._stun_cooldown / STUN_COOLDOWN, 0.0, 1.0)
+	var ratio := 1.0 - clampf(_player._stun_cooldown / _stun_cooldown_max, 0.0, 1.0)
 	_bar_fill.size.x = BAR_SIZE.x * ratio
