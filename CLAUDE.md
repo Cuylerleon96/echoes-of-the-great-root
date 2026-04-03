@@ -21,10 +21,14 @@
 3. Update memory if anything significant was decided or changed
 
 ## Current State (update this each session)
-- Movement prototype working: walk, jump (coyote + buffer + variable height), double jump, dash (X key), wall jump
-- Green capsule placeholder visible; `AnimatedSprite3D` wired and ready for real sprites
-- Test stage in `main.tscn`: grey=basic jumps, blue=wall jump alley, orange=dash gap, green=double jump tower
-- No enemies, no UI, no rooms yet — pure movement test
+- Full movement: walk, jump (coyote + buffer + variable height), double jump, dash (X/B), wall jump, wall slide, fast fall
+- Green capsule placeholder; `AnimatedSprite3D` wired with 8 animation slots — ready for sprites
+- Two enemy types: Pouncer (alert → pounce → recover → return) and Flyer (idle → chase → stunned/fall-death)
+- Combat: take_damage with i-frames + knockback; stun ability (E key / X button, 2.2u range, 1.5s cooldown)
+- HUD: 3 hearts + stun cooldown bar (`ui/hud.gd`); camera: lookahead + soft deadzone (`main.gd`)
+- Respawn: fall → last platform touched (−1 heart); death → origin + enemy reset
+- Touch controls wired (`ui/touch_controls.gd`), auto-hide on desktop
+- **Not yet:** audio, rooms, checkpoints, ability gating, enemy HP
 
 ## Architecture
 - **Node3D root** + **Camera3D (orthographic, size=10)** — all gameplay on XY plane, Z=0
