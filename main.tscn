@@ -1,4 +1,4 @@
-[gd_scene load_steps=7 format=3]
+[gd_scene load_steps=10 format=3]
 
 [ext_resource type="Script" path="res://main.gd" id="1"]
 [ext_resource type="Script" path="res://characters/echo/echo.gd" id="2"]
@@ -7,6 +7,59 @@
 [sub_resource type="CapsuleShape3D" id="capsule"]
 radius = 0.2
 height = 0.6
+
+[sub_resource type="CapsuleMesh" id="capsule_mesh"]
+radius = 0.2
+height = 0.6
+
+[sub_resource type="StandardMaterial3D" id="mat_echo"]
+albedo_color = Color(0.6, 0.9, 0.5, 1)
+emission_enabled = true
+emission = Color(0.2, 0.5, 0.1, 1)
+emission_energy_multiplier = 0.4
+
+[sub_resource type="SpriteFrames" id="sprite_frames"]
+animations = [{
+"frames": [],
+"loop": true,
+"name": &"idle",
+"speed": 8.0
+}, {
+"frames": [],
+"loop": true,
+"name": &"run",
+"speed": 12.0
+}, {
+"frames": [],
+"loop": false,
+"name": &"jump_rise",
+"speed": 8.0
+}, {
+"frames": [],
+"loop": true,
+"name": &"jump_fall",
+"speed": 8.0
+}, {
+"frames": [],
+"loop": true,
+"name": &"wall_slide",
+"speed": 8.0
+}, {
+"frames": [],
+"loop": false,
+"name": &"dash",
+"speed": 14.0
+}, {
+"frames": [],
+"loop": false,
+"name": &"hurt",
+"speed": 10.0
+}, {
+"frames": [],
+"loop": false,
+"name": &"death",
+"speed": 8.0
+}]
 
 [sub_resource type="StandardMaterial3D" id="mat_grey"]
 albedo_color = Color(0.55, 0.55, 0.60, 1)
@@ -196,11 +249,17 @@ script = ExtResource("2")
 [node name="CollisionShape3D" type="CollisionShape3D" parent="Echo"]
 shape = SubResource("capsule")
 
-[node name="Sprite3D" type="Sprite3D" parent="Echo"]
+[node name="AnimatedSprite3D" type="AnimatedSprite3D" parent="Echo"]
 pixel_size = 0.01
+sprite_frames = SubResource("sprite_frames")
+animation = &"idle"
 billboard = 0
-shaded = false
 double_sided = true
+visible = false
+
+[node name="Mesh" type="MeshInstance3D" parent="Echo"]
+mesh = SubResource("capsule_mesh")
+surface_material_override/0 = SubResource("mat_echo")
 
 [node name="MovementComponent" type="Node" parent="Echo"]
 script = ExtResource("3")

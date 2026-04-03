@@ -3,7 +3,12 @@
     "allow": [
       "Bash(rm:*)",
       "Bash(where gh:*)",
-      "Bash(git config:*)"
+      "Bash(git config:*)",
+      "Bash(gh --version)",
+      "Bash(\"/c/Program Files/GitHub CLI/gh.exe\" --version)",
+      "Bash(winget install:*)",
+      "Bash(/c/Program Files/GitHub CLI/gh.exe auth:*)",
+      "Bash('/c/Program Files/GitHub CLI/gh.exe' repo create echoes-of-the-great-root --public --description '2.5D Metroidvania in Godot 4 — Echo the Kodama spirit saves the Mother Tree across three eras' --source . --remote origin --push)"
     ]
   },
   "enableAllProjectMcpServers": true,

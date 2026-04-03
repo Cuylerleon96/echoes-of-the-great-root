@@ -1,31 +1,76 @@
-# Godot Kodama — Project Instructions
+# Echoes of the Great Root — Project Instructions
 
-## Project Type
-3D parallax 2D sprite metroidvania game built in Godot 4.6.1, inspired by Hollow Knight's movement and physics feel.
+## Game
+2.5D metroidvania in Godot 4.6.1. Player is Echo, a Kodama spirit saving the Mother Tree across three eras (Past / Present / Future). Inspired by Hollow Knight's movement feel.
 
 ## Engine
 - **Godot 4.6.1** at `C:\Users\Admin\AppData\Local\Microsoft\WinGet\Packages\GodotEngine.GodotEngine_Microsoft.Winget.Source_8wekyb3d8bbwe\Godot_v4.6.1-stable_win64.exe`
 - Use the **godot MCP** for launching the editor, running scenes, and capturing debug output.
+- GitHub repo: `https://github.com/Cuylerleon96/echoes-of-the-great-root`
 
-## Skills Active in This Project
-All skills in `.claude/skills/` are always active:
+## Session Workflow
+**Do this at the start of every session:**
+1. Read memory files in `.claude/projects/.../memory/` for project context
+2. Run `git log --oneline -10` to see what was last worked on
+3. Ask the user where they want to pick up, or suggest the next logical step
+4. At the end of every session: commit all changes and push to GitHub
 
-- **hollow-knight-movement** — CharacterBody2D physics: coyote time, jump buffer, variable jump, dash, wall slide/jump, nail pogo
-- **parallax-2d-sprites** — Layered 2D sprite depth system with ParallaxBackground and optional SubViewport 3D approach
-- **godot-scene-architecture** — Scene tree layout, autoloads, EventBus signals, state machines, room system, save/load
-- **godot-metroidvania** — Ability gating, enemy AI, combat feel (hit stop, invincibility frames), checkpoints, soul/geo systems
-- **godot-gdscript** — GDScript 2.0 typed syntax, signals, resources, coroutines, physics layer conventions
+**Do this at the end of every session:**
+1. Commit everything with a clear message describing what changed
+2. Push to `origin master`
+3. Update memory if anything significant was decided or changed
 
-## Conventions
-- Always use **typed GDScript** — `var x: float`, `func foo(bar: int) -> void`
-- Use **StringName** (`&"idle"`) for animation names and state machine keys
-- Physics go in `_physics_process`, visuals/UI in `_process`
-- Use **EventBus autoload** for cross-node communication — never direct node references across scenes
+## Current State (update this each session)
+- Movement prototype working: walk, jump (coyote + buffer + variable height), double jump, dash (X key), wall jump
+- Green capsule placeholder visible; `AnimatedSprite3D` wired and ready for real sprites
+- Test stage in `main.tscn`: grey=basic jumps, blue=wall jump alley, orange=dash gap, green=double jump tower
+- No enemies, no UI, no rooms yet — pure movement test
+
+## Architecture
+- **Node3D root** + **Camera3D (orthographic, size=10)** — all gameplay on XY plane, Z=0
+- **CharacterBody3D** for Echo (NOT CharacterBody2D — we're in a 3D scene)
+- **Sprite3D / AnimatedSprite3D** for visuals at different Z depths for parallax
+- Manual parallax script needed (orthographic camera has no natural depth parallax)
+- World scale: 1 unit ≈ 72px at camera.size=10, 720p viewport
+
+## Key Files
+- `main.tscn` — main scene (currently the test stage)
+- `main.gd` — camera follow + fall respawn
+- `characters/echo/echo.gd` — player root, drives animations, catches dash input
+- `characters/echo/movement_component.gd` — all physics (self-contained, no autoload deps)
+
+## Movement Tuning (current values)
+- `move_speed = 5.2` — top speed
+- `dash_speed = 14.0`, `dash_duration = 0.20` — ~2.8 units distance
+- `jump_height = 1.7`, peak `0.38s`, fall `0.28s`
+- All abilities ON: `has_double_jump`, `has_dash`, `has_wall_jump`
+- Dash key: **X** (Shift was unreliable as a modifier key in Godot)
+
+## Keybindings
+| Action | Keyboard |
+|---|---|
+| Move | A/D or Arrow keys |
+| Jump | Space |
+| Dash | X |
+| Fast fall | S / Down |
+
+## Sprite Import (ready for tonight)
+- Drop PNGs into `res://assets/sprites/echo/`
+- Select Echo → AnimatedSprite3D → open SpriteFrames in Inspector
+- Animations pre-wired: `idle`, `run`, `jump_rise`, `jump_fall`, `wall_slide`, `dash`, `hurt`, `death`
+- Placeholder mesh hides itself automatically once any animation has frames loaded
+
+## GDScript Conventions
+- Always typed: `var x: float`, `func foo(bar: int) -> void`
+- StringName for animation/state keys: `&"idle"`
+- Physics in `_physics_process`, visuals in `_process`
+- `get_parent()` not `owner` to reference parent node from a component
 - Collision layers: 1=World, 2=Player, 3=Enemies, 4=Hazards, 5=Hitboxes, 6=Interactables
-- Pixel art: `Nearest` texture filtering, base resolution `320×180` scaled up
 
-## MCP Usage
-Use the `godot` MCP server to:
-- Launch the Godot editor to inspect scenes
-- Run the project and capture debug output
-- Execute GDScript snippets for testing
+## Skills Active
+All skills in `.claude/skills/` load automatically:
+- **hollow-knight-movement** — HK-style physics reference
+- **parallax-2d-sprites** — 2.5D depth layering
+- **godot-scene-architecture** — scene tree, autoloads, EventBus, room system
+- **godot-metroidvania** — ability gating, combat, checkpoints
+- **godot-gdscript** — GDScript 2.0 syntax and idioms

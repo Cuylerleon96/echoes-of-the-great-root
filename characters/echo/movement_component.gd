@@ -6,12 +6,12 @@ class_name MovementComponent
 extends Node
 
 # ── Horizontal ────────────────────────────────────────────────────────────────
-@export var move_speed: float = 3.5           # units/s  (≈252 px/s)
-@export var ground_acceleration: float = 30.0
-@export var ground_friction: float = 30.0
-@export var air_acceleration: float = 20.0
-@export var air_friction: float = 12.0
-@export var turn_boost: float = 1.5
+@export var move_speed: float = 5.2           # units/s
+@export var ground_acceleration: float = 55.0  # snappy, near-instant ground response
+@export var ground_friction: float = 50.0
+@export var air_acceleration: float = 22.0
+@export var air_friction: float = 10.0
+@export var turn_boost: float = 1.8           # extra snap when reversing direction
 
 # ── Jump ──────────────────────────────────────────────────────────────────────
 @export var jump_height: float = 1.7          # units    (≈122 px)
@@ -31,8 +31,8 @@ extends Node
 @export var double_jump_multiplier: float = 0.85
 
 # ── Dash ──────────────────────────────────────────────────────────────────────
-@export var dash_speed: float = 8.0           # units/s during dash
-@export var dash_duration: float = 0.15       # seconds → ~1.2 units distance
+@export var dash_speed: float = 14.0          # units/s during dash
+@export var dash_duration: float = 0.20       # seconds → ~2.8 units distance
 @export var dash_cooldown: float = 0.55
 
 # ── Wall Jump ─────────────────────────────────────────────────────────────────
@@ -47,6 +47,7 @@ var fall_gravity: float
 # ── Runtime state ─────────────────────────────────────────────────────────────
 var facing_direction: float = 1.0
 var is_dashing: bool = false
+var dash_buffered: bool = false   # set by echo._unhandled_input to avoid missing physics frames
 
 var _body: CharacterBody3D
 var _coyote_timer: float = 0.0
@@ -58,8 +59,8 @@ var _was_on_floor: bool = false
 var _dash_dir: float = 1.0
 
 func _ready() -> void:
-	_body = owner as CharacterBody3D
-	assert(_body != null, "MovementComponent owner must be a CharacterBody3D")
+	_body = get_parent() as CharacterBody3D
+	assert(_body != null, "MovementComponent must be a direct child of CharacterBody3D")
 	_recalc_jump()
 
 func _recalc_jump() -> void:
@@ -152,6 +153,7 @@ func _handle_horizontal(delta: float) -> void:
 # ── Dash ──────────────────────────────────────────────────────────────────────
 func _handle_dash(delta: float) -> void:
 	if not has_dash:
+		dash_buffered = false
 		return
 	if is_dashing:
 		_dash_timer -= delta
@@ -160,12 +162,13 @@ func _handle_dash(delta: float) -> void:
 			_body.velocity.x = _dash_dir * move_speed
 			_body.velocity.y = 0.0
 		return
-	if Input.is_action_just_pressed("dash") and _dash_cooldown_timer <= 0.0:
+	if (dash_buffered or Input.is_action_just_pressed("dash")) and _dash_cooldown_timer <= 0.0:
+		dash_buffered = false
 		is_dashing = true
 		_dash_timer = dash_duration
 		_dash_cooldown_timer = dash_cooldown
 		var h := Input.get_axis("move_left", "move_right")
-		_dash_dir = h if h != 0.0 else facing_direction
+		_dash_dir = signf(h) if h != 0.0 else facing_direction
 		_body.velocity = Vector3(_dash_dir * dash_speed, 0.0, 0.0)
 
 # ── Post-move bookkeeping ─────────────────────────────────────────────────────
