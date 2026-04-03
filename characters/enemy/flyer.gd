@@ -100,6 +100,12 @@ func _on_hurt_zone_body_entered(body: Node3D) -> void:
 	var movement := body.get_node_or_null("MovementComponent") as MovementComponent
 	if movement != null and movement.is_dashing:
 		return
-	if body.has_method("take_damage"):
-		var knockback_dir := signf(body.global_position.x - global_position.x)
-		body.take_damage(damage, knockback_dir)
+	if not body.has_method("take_damage"):
+		return
+	# If stacked on the same X, fall back to the opposite of approach direction
+	var dx := body.global_position.x - global_position.x
+	var knockback_dir: float = signf(dx) if absf(dx) > 0.05 else \
+			(-signf(velocity.x) if absf(velocity.x) > 0.1 else 1.0)
+	body.take_damage(damage, knockback_dir)
+	# Recoil away so the flyer doesn't sit inside the player during i-frames
+	velocity = Vector3(-knockback_dir * move_speed * 2.5, move_speed, 0.0)
