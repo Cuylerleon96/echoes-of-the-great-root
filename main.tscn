@@ -5,6 +5,7 @@
 [ext_resource type="Script" uid="uid://dq5fpm5ukgy2o" path="res://characters/echo/movement_component.gd" id="3"]
 [ext_resource type="Script" path="res://characters/enemy/pouncer.gd" id="4"]
 [ext_resource type="Script" path="res://characters/enemy/flyer.gd" id="5"]
+[ext_resource type="Script" path="res://ui/hud.gd" id="6"]
 
 [sub_resource type="StandardMaterial3D" id="mat_grey"]
 albedo_color = Color(0.55, 0.55, 0.6, 1)
@@ -325,3 +326,6 @@ collision_mask = 2
 
 [node name="CollisionShape3D" type="CollisionShape3D" parent="Enemies/Flyer2/HurtZone" unique_id=550200010]
 shape = SubResource("enemy_detect_shape")
+
+[node name="HUD" type="CanvasLayer" parent="."]
+script = ExtResource("6")
