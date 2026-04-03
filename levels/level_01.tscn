@@ -1,0 +1,337 @@
+[gd_scene format=3 uid="uid://dlev01scn0001"]
+
+[ext_resource type="Script" path="res://main.gd" id="1"]
+[ext_resource type="Script" path="res://characters/echo/echo.gd" id="2"]
+[ext_resource type="Script" path="res://characters/echo/movement_component.gd" id="3"]
+[ext_resource type="PackedScene" uid="uid://dnk7y2fxb9p03" path="res://characters/enemy/pouncer.tscn" id="4"]
+[ext_resource type="PackedScene" uid="uid://cq5m1vwxt4j8r" path="res://characters/enemy/flyer.tscn" id="5"]
+[ext_resource type="Script" path="res://ui/hud.gd" id="6"]
+[ext_resource type="Script" path="res://ui/touch_controls.gd" id="7"]
+[ext_resource type="PackedScene" uid="uid://bpkup7scn0001" path="res://objects/ability_pickup.tscn" id="8"]
+
+[sub_resource type="CapsuleShape3D" id="capsule"]
+radius = 0.2
+height = 0.6
+
+[sub_resource type="SpriteFrames" id="sprite_frames"]
+animations = [{
+"frames": [],
+"loop": false,
+"name": &"dash",
+"speed": 14.0
+}, {
+"frames": [],
+"loop": false,
+"name": &"death",
+"speed": 8.0
+}, {
+"frames": [],
+"loop": false,
+"name": &"hurt",
+"speed": 10.0
+}, {
+"frames": [],
+"loop": true,
+"name": &"idle",
+"speed": 8.0
+}, {
+"frames": [],
+"loop": true,
+"name": &"jump_fall",
+"speed": 8.0
+}, {
+"frames": [],
+"loop": false,
+"name": &"jump_rise",
+"speed": 8.0
+}, {
+"frames": [],
+"loop": true,
+"name": &"run",
+"speed": 12.0
+}, {
+"frames": [],
+"loop": true,
+"name": &"wall_slide",
+"speed": 8.0
+}]
+
+[sub_resource type="CapsuleMesh" id="capsule_mesh"]
+radius = 0.2
+height = 0.6
+
+[sub_resource type="StandardMaterial3D" id="mat_echo"]
+albedo_color = Color(0.6, 0.9, 0.5, 1)
+emission_enabled = true
+emission = Color(0.2, 0.5, 0.1, 1)
+emission_energy_multiplier = 0.4
+
+[sub_resource type="BoxShape3D" id="shape_w8"]
+size = Vector3(8, 0.3, 2)
+
+[sub_resource type="BoxMesh" id="mesh_w8"]
+size = Vector3(8, 0.3, 2)
+
+[sub_resource type="BoxShape3D" id="shape_w3"]
+size = Vector3(3, 0.3, 2)
+
+[sub_resource type="BoxMesh" id="mesh_w3"]
+size = Vector3(3, 0.3, 2)
+
+[sub_resource type="BoxShape3D" id="shape_w4"]
+size = Vector3(4, 0.3, 2)
+
+[sub_resource type="BoxMesh" id="mesh_w4"]
+size = Vector3(4, 0.3, 2)
+
+[sub_resource type="BoxShape3D" id="shape_wall"]
+size = Vector3(0.3, 2.5, 2)
+
+[sub_resource type="BoxMesh" id="mesh_wall"]
+size = Vector3(0.3, 2.5, 2)
+
+[sub_resource type="BoxShape3D" id="shape_w5"]
+size = Vector3(5, 0.3, 2)
+
+[sub_resource type="BoxMesh" id="mesh_w5"]
+size = Vector3(5, 0.3, 2)
+
+[sub_resource type="BoxShape3D" id="shape_w6"]
+size = Vector3(6, 0.3, 2)
+
+[sub_resource type="BoxMesh" id="mesh_w6"]
+size = Vector3(6, 0.3, 2)
+
+[sub_resource type="StandardMaterial3D" id="mat_stone"]
+albedo_color = Color(0.28, 0.26, 0.24, 1)
+
+[sub_resource type="BoxShape3D" id="end_shape"]
+size = Vector3(2, 3, 2)
+
+[node name="Level01" type="Node3D"]
+script = ExtResource("1")
+respawn_y_threshold = -2.0
+
+[node name="DirectionalLight3D" type="DirectionalLight3D" parent="."]
+transform = Transform3D(0.866, -0.433, 0.25, 0, 0.5, 0.866, -0.5, -0.75, 0.433, 0, 10, 0)
+light_energy = 1.4
+shadow_enabled = true
+
+[node name="Camera3D" type="Camera3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1.5, 15)
+projection = 1
+size = 10.0
+near = 0.1
+far = 100.0
+
+[node name="Stage" type="Node3D" parent="."]
+
+[node name="SpawnFloor" type="StaticBody3D" parent="Stage"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 3, -0.15, 0)
+collision_layer = 1
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="Stage/SpawnFloor"]
+shape = SubResource("shape_w8")
+
+[node name="MeshInstance3D" type="MeshInstance3D" parent="Stage/SpawnFloor"]
+mesh = SubResource("mesh_w8")
+surface_material_override/0 = SubResource("mat_stone")
+
+[node name="Platform1" type="StaticBody3D" parent="Stage"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 11, -0.15, 0)
+collision_layer = 1
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="Stage/Platform1"]
+shape = SubResource("shape_w3")
+
+[node name="MeshInstance3D" type="MeshInstance3D" parent="Stage/Platform1"]
+mesh = SubResource("mesh_w3")
+surface_material_override/0 = SubResource("mat_stone")
+
+[node name="Platform2" type="StaticBody3D" parent="Stage"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 16, 0.85, 0)
+collision_layer = 1
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="Stage/Platform2"]
+shape = SubResource("shape_w4")
+
+[node name="MeshInstance3D" type="MeshInstance3D" parent="Stage/Platform2"]
+mesh = SubResource("mesh_w4")
+surface_material_override/0 = SubResource("mat_stone")
+
+[node name="Platform3" type="StaticBody3D" parent="Stage"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 21.5, 2.85, 0)
+collision_layer = 1
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="Stage/Platform3"]
+shape = SubResource("shape_w3")
+
+[node name="MeshInstance3D" type="MeshInstance3D" parent="Stage/Platform3"]
+mesh = SubResource("mesh_w3")
+surface_material_override/0 = SubResource("mat_stone")
+
+[node name="ShaftFloor" type="StaticBody3D" parent="Stage"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 25, 2.35, 0)
+collision_layer = 1
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="Stage/ShaftFloor"]
+shape = SubResource("shape_w3")
+
+[node name="MeshInstance3D" type="MeshInstance3D" parent="Stage/ShaftFloor"]
+mesh = SubResource("mesh_w3")
+surface_material_override/0 = SubResource("mat_stone")
+
+[node name="ShaftWallLeft" type="StaticBody3D" parent="Stage"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 23.65, 3.75, 0)
+collision_layer = 1
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="Stage/ShaftWallLeft"]
+shape = SubResource("shape_wall")
+
+[node name="MeshInstance3D" type="MeshInstance3D" parent="Stage/ShaftWallLeft"]
+mesh = SubResource("mesh_wall")
+surface_material_override/0 = SubResource("mat_stone")
+
+[node name="ShaftWallRight" type="StaticBody3D" parent="Stage"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 26.35, 3.75, 0)
+collision_layer = 1
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="Stage/ShaftWallRight"]
+shape = SubResource("shape_wall")
+
+[node name="MeshInstance3D" type="MeshInstance3D" parent="Stage/ShaftWallRight"]
+mesh = SubResource("mesh_wall")
+surface_material_override/0 = SubResource("mat_stone")
+
+[node name="PostShaft" type="StaticBody3D" parent="Stage"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 28, 4.85, 0)
+collision_layer = 1
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="Stage/PostShaft"]
+shape = SubResource("shape_w3")
+
+[node name="MeshInstance3D" type="MeshInstance3D" parent="Stage/PostShaft"]
+mesh = SubResource("mesh_w3")
+surface_material_override/0 = SubResource("mat_stone")
+
+[node name="DashLedge" type="StaticBody3D" parent="Stage"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 32, 4.85, 0)
+collision_layer = 1
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="Stage/DashLedge"]
+shape = SubResource("shape_w3")
+
+[node name="MeshInstance3D" type="MeshInstance3D" parent="Stage/DashLedge"]
+mesh = SubResource("mesh_w3")
+surface_material_override/0 = SubResource("mat_stone")
+
+[node name="DashLanding" type="StaticBody3D" parent="Stage"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 41.5, 4.85, 0)
+collision_layer = 1
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="Stage/DashLanding"]
+shape = SubResource("shape_w5")
+
+[node name="MeshInstance3D" type="MeshInstance3D" parent="Stage/DashLanding"]
+mesh = SubResource("mesh_w5")
+surface_material_override/0 = SubResource("mat_stone")
+
+[node name="FinalApproach" type="StaticBody3D" parent="Stage"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 47.5, 3.85, 0)
+collision_layer = 1
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="Stage/FinalApproach"]
+shape = SubResource("shape_w3")
+
+[node name="MeshInstance3D" type="MeshInstance3D" parent="Stage/FinalApproach"]
+mesh = SubResource("mesh_w3")
+surface_material_override/0 = SubResource("mat_stone")
+
+[node name="FinalPlatform" type="StaticBody3D" parent="Stage"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 53.5, 2.85, 0)
+collision_layer = 1
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="Stage/FinalPlatform"]
+shape = SubResource("shape_w6")
+
+[node name="MeshInstance3D" type="MeshInstance3D" parent="Stage/FinalPlatform"]
+mesh = SubResource("mesh_w6")
+surface_material_override/0 = SubResource("mat_stone")
+
+[node name="Echo" type="CharacterBody3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.35, 0)
+collision_layer = 2
+floor_snap_length = 0.05
+script = ExtResource("2")
+has_stun = false
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="Echo"]
+shape = SubResource("capsule")
+
+[node name="AnimatedSprite3D" type="AnimatedSprite3D" parent="Echo"]
+visible = false
+sprite_frames = SubResource("sprite_frames")
+animation = &"idle"
+
+[node name="Mesh" type="MeshInstance3D" parent="Echo"]
+mesh = SubResource("capsule_mesh")
+surface_material_override/0 = SubResource("mat_echo")
+
+[node name="MovementComponent" type="Node" parent="Echo"]
+script = ExtResource("3")
+has_dash = false
+
+[node name="Enemies" type="Node3D" parent="."]
+
+[node name="Pouncer1" parent="Enemies" instance=ExtResource("4")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 5, 0.3, 0)
+
+[node name="Flyer1" parent="Enemies" instance=ExtResource("5")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 13, 2.0, 0)
+
+[node name="Pouncer2" parent="Enemies" instance=ExtResource("4")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 16, 1.3, 0)
+
+[node name="Pouncer3" parent="Enemies" instance=ExtResource("4")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 21.5, 3.3, 0)
+
+[node name="Flyer2" parent="Enemies" instance=ExtResource("5")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 25, 3.8, 0)
+
+[node name="Pouncer4" parent="Enemies" instance=ExtResource("4")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 42, 5.3, 0)
+
+[node name="Flyer3" parent="Enemies" instance=ExtResource("5")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 42, 7.0, 0)
+
+[node name="Pouncer5" parent="Enemies" instance=ExtResource("4")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 47.5, 4.3, 0)
+
+[node name="Flyer4" parent="Enemies" instance=ExtResource("5")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 51, 6.5, 0)
+
+[node name="Pouncer6" parent="Enemies" instance=ExtResource("4")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 53.5, 3.3, 0)
+
+[node name="Pickups" type="Node3D" parent="."]
+
+[node name="DashPickup" parent="Pickups" instance=ExtResource("8")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 28, 5.7, 0)
+
+[node name="StunPickup" parent="Pickups" instance=ExtResource("8")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 39.5, 5.7, 0)
+ability = 1
+
+[node name="EndZone" type="Area3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 55.5, 4.0, 0)
+collision_layer = 0
+collision_mask = 2
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="EndZone"]
+shape = SubResource("end_shape")
+
+[node name="HUD" type="CanvasLayer" parent="."]
+script = ExtResource("6")
+
+[node name="TouchControls" type="CanvasLayer" parent="."]
+script = ExtResource("7")

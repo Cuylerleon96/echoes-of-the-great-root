@@ -22,6 +22,7 @@ const INVINCIBLE_DURATION: float = 1.0
 const STUN_RANGE: float = 2.2
 const STUN_COOLDOWN: float = 1.5
 
+@export var has_stun: bool = true   # set false in level scenes until pickup collected
 @export var knockback_speed: float = 7.0
 @export var knockback_rise: float = 4.5
 
@@ -80,8 +81,11 @@ func _unhandled_input(event: InputEvent) -> void:
 	if event.is_action_pressed("stun"):
 		_try_stun()
 
+func unlock_stun() -> void:
+	has_stun = true
+
 func _try_stun() -> void:
-	if _stun_cooldown > 0.0:
+	if not has_stun or _stun_cooldown > 0.0:
 		return
 	_stun_cooldown = STUN_COOLDOWN
 	_flash_stun_light()

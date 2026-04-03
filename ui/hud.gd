@@ -77,6 +77,13 @@ func _update_hearts() -> void:
 		_hearts[i].color = COLOR_HEART_FULL if i < hp else COLOR_HEART_EMPTY
 
 func _update_bar() -> void:
+	# Hide bar entirely if stun hasn't been unlocked yet
+	var stun_prop = _player.get("has_stun")
+	var has_stun: bool = stun_prop == null or stun_prop == true
+	_bar_bg.visible   = has_stun
+	_bar_fill.visible = has_stun
+	if not has_stun:
+		return
 	# 0 cooldown remaining → bar full.  Full cooldown → bar empty.
 	var ratio := 1.0 - clampf(_player._stun_cooldown / _stun_cooldown_max, 0.0, 1.0)
 	_bar_fill.size.x = BAR_SIZE.x * ratio
