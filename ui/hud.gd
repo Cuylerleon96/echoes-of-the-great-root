@@ -3,13 +3,13 @@
 ## All nodes built in code — swap ColorRects for TextureRects when art is ready.
 extends CanvasLayer
 
-const HEART_SIZE  := Vector2(18.0, 18.0)
-const HEART_GAP   := 5.0
-const MARGIN      := Vector2(14.0, 14.0)
+const HEART_SIZE  := Vector2(45.0, 45.0)
+const HEART_GAP   := 12.0
+const MARGIN      := Vector2(20.0, 20.0)
 
-# Bar width = 3 hearts + 2 gaps = 3*18 + 2*5 = 64px
-const BAR_SIZE    := Vector2(64.0, 3.0)
-const BAR_GAP_Y   := 6.0
+# Bar width = 3 hearts + 2 gaps = 3*45 + 2*12 = 159px
+const BAR_SIZE    := Vector2(159.0, 8.0)
+const BAR_GAP_Y   := 10.0
 
 const COLOR_HEART_FULL  := Color(0.92, 0.20, 0.22)
 const COLOR_HEART_EMPTY := Color(0.22, 0.08, 0.08)

@@ -14,10 +14,12 @@ enum State { IDLE, CHASE, STUNNED }
 var _state: State      = State.IDLE
 var _player: Node3D    = null
 var _stun_timer: float = 0.0
+var _spawn_pos: Vector3
 
 func _ready() -> void:
 	motion_mode = MOTION_MODE_FLOATING
 	position.z  = 0.0
+	_spawn_pos  = global_position
 	add_to_group("enemy")
 	$HurtZone.body_entered.connect(_on_hurt_zone_body_entered)
 
@@ -69,6 +71,13 @@ func stun() -> void:
 	_state = State.STUNNED
 	_stun_timer = 2.5
 	velocity = Vector3.ZERO
+
+func reset() -> void:
+	global_position = _spawn_pos
+	velocity        = Vector3.ZERO
+	_state          = State.IDLE
+	_stun_timer     = 0.0
+	_player         = null
 
 # ── Helpers ───────────────────────────────────────────────────────────────────
 

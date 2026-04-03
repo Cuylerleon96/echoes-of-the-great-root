@@ -69,6 +69,9 @@ func _die() -> void:
 	global_position = SPAWN_POSITION
 	velocity = Vector3.ZERO
 	_invincible_timer = INVINCIBLE_DURATION
+	for enemy in get_tree().get_nodes_in_group("enemy"):
+		if enemy.has_method("reset"):
+			enemy.reset()
 
 func _unhandled_input(event: InputEvent) -> void:
 	if event.is_action_pressed("dash"):

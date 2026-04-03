@@ -152,6 +152,16 @@ func stun() -> void:
 	_stun_timer = 2.5
 	velocity.x = 0.0
 
+func reset() -> void:
+	global_position = _spawn_pos
+	velocity        = Vector3.ZERO
+	_state          = State.IDLE
+	_timer          = 0.0
+	_stun_timer     = 0.0
+	_pounce_elapsed = 0.0
+	_lost_timer     = 0.0
+	_player         = null
+
 # ── Helpers ───────────────────────────────────────────────────────────────────
 
 func _face_player() -> void:
