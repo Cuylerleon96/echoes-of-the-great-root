@@ -28,13 +28,17 @@ extends Node3D
 const SPAWN_POSITION := Vector3(0.0, 0.35, 0.0)
 
 var _lookahead_offset: float = 0.0
+var _last_safe_pos: Vector3
 
 func _ready() -> void:
 	# Snap instantly to player so the camera doesn't fly in on the first frame
 	var p := echo.global_position
 	camera.global_position = Vector3(p.x, p.y + camera_y_offset, camera_z_depth)
+	_last_safe_pos = p
 
 func _physics_process(delta: float) -> void:
+	if echo.is_on_floor():
+		_last_safe_pos = echo.global_position
 	_follow_camera(delta)
 	_check_fall()
 
@@ -68,6 +72,8 @@ func _follow_camera(delta: float) -> void:
 
 func _check_fall() -> void:
 	if echo.global_position.y < respawn_y_threshold:
-		echo.global_position = SPAWN_POSITION
+		echo.global_position = _last_safe_pos
 		echo.velocity        = Vector3.ZERO
 		echo.take_damage(1)
+		# If take_damage triggered _die() (hp hit 0), _die() already overwrote
+		# global_position with SPAWN_POSITION — so death respawn is handled automatically.
