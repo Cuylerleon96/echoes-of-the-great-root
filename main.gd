@@ -98,7 +98,8 @@ func _clear_respawn_pos(base: Vector3) -> Vector3:
 			var dx := pos.x - e.global_position.x
 			if absf(dx) < MIN_DIST:
 				# Push away; if directly on top choose the direction the player was facing
-				var push := signf(dx) if absf(dx) > 0.05 else echo.get_node("MovementComponent").facing_direction
+				var movement := echo.get_node("MovementComponent") as MovementComponent
+				var push: float = signf(dx) if absf(dx) > 0.05 else movement.facing_direction
 				pos.x += push * (MIN_DIST - absf(dx) + 0.1)
 				clear = false
 		if clear:
