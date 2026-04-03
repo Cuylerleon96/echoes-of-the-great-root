@@ -1,0 +1,206 @@
+[gd_scene load_steps=7 format=3]
+
+[ext_resource type="Script" path="res://main.gd" id="1"]
+[ext_resource type="Script" path="res://characters/echo/echo.gd" id="2"]
+[ext_resource type="Script" path="res://characters/echo/movement_component.gd" id="3"]
+
+[sub_resource type="CapsuleShape3D" id="capsule"]
+radius = 0.2
+height = 0.6
+
+[sub_resource type="StandardMaterial3D" id="mat_grey"]
+albedo_color = Color(0.55, 0.55, 0.60, 1)
+
+[sub_resource type="StandardMaterial3D" id="mat_blue"]
+albedo_color = Color(0.30, 0.45, 0.80, 1)
+
+[sub_resource type="StandardMaterial3D" id="mat_orange"]
+albedo_color = Color(0.85, 0.50, 0.20, 1)
+
+[sub_resource type="StandardMaterial3D" id="mat_green"]
+albedo_color = Color(0.25, 0.70, 0.35, 1)
+
+[node name="Main" type="Node3D"]
+script = ExtResource("1")
+
+[node name="DirectionalLight3D" type="DirectionalLight3D" parent="."]
+transform = Transform3D(0.866, -0.433, 0.25, 0, 0.5, 0.866, -0.5, -0.75, 0.433, 0, 10, 0)
+light_energy = 1.4
+shadow_enabled = true
+
+[node name="Camera3D" type="Camera3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1.5, 15)
+projection = 1
+size = 10.0
+near = 0.1
+far = 100.0
+
+; ─────────────────────────────────────────────────────────────────────────────
+; TEST STAGE  (all platforms use CSGBox3D + use_collision)
+; Flow: left → right. Each colour = ability zone.
+;   Grey   = basic movement / single jump
+;   Blue   = wall jump
+;   Orange = dash
+;   Green  = double jump
+; ─────────────────────────────────────────────────────────────────────────────
+
+[node name="Stage" type="Node3D" parent="."]
+
+; ── SPAWN AREA ───────────────────────────────────────────────────────────────
+; Wide floor. Echo starts here at (0, 0.35, 0).
+[node name="SpawnFloor" type="CSGBox3D" parent="Stage"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1,  2.0, -0.15, 0)
+size = Vector3(8.0, 0.3, 2.0)
+use_collision = true
+collision_layer = 1
+material_override = SubResource("mat_grey")
+
+; ── BASIC JUMP SECTION (grey) ─────────────────────────────────────────────────
+; Small gap (1 unit) then step up → tests single jump and gap crossing.
+
+[node name="Step1" type="CSGBox3D" parent="Stage"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1,  8.25, 0.65, 0)
+size = Vector3(2.5, 0.3, 2.0)
+use_collision = true
+collision_layer = 1
+material_override = SubResource("mat_grey")
+
+[node name="Step2" type="CSGBox3D" parent="Stage"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1,  11.5, 1.35, 0)
+size = Vector3(2.5, 0.3, 2.0)
+use_collision = true
+collision_layer = 1
+material_override = SubResource("mat_grey")
+
+[node name="StepDown" type="CSGBox3D" parent="Stage"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1,  14.5, 0.35, 0)
+size = Vector3(2.5, 0.3, 2.0)
+use_collision = true
+collision_layer = 1
+material_override = SubResource("mat_grey")
+
+; ── WALL JUMP SECTION (blue) ──────────────────────────────────────────────────
+; Floor leads into a narrow alley between two tall walls.
+; Player wall-jumps up to the reward platform at Y=5.
+; Walls are 1.4 units apart (player 0.4 wide → 1.0 of movement space).
+; Each wall jump gains ~1 unit height → needs 5 jumps to reach top.
+
+[node name="WallZoneFloor" type="CSGBox3D" parent="Stage"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1,  17.0, -0.15, 0)
+size = Vector3(4.0, 0.3, 2.0)
+use_collision = true
+collision_layer = 1
+material_override = SubResource("mat_blue")
+
+[node name="WallLeft" type="CSGBox3D" parent="Stage"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1,  17.15, 2.75, 0)
+size = Vector3(0.3, 5.5, 2.0)
+use_collision = true
+collision_layer = 1
+material_override = SubResource("mat_blue")
+
+[node name="WallRight" type="CSGBox3D" parent="Stage"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1,  18.85, 2.75, 0)
+size = Vector3(0.3, 5.5, 2.0)
+use_collision = true
+collision_layer = 1
+material_override = SubResource("mat_blue")
+
+; Reward platform at top of wall jump alley.
+[node name="WallJumpTop" type="CSGBox3D" parent="Stage"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1,  18.0, 4.85, 0)
+size = Vector3(2.0, 0.3, 2.0)
+use_collision = true
+collision_layer = 1
+material_override = SubResource("mat_blue")
+
+; ── DASH SECTION (orange) ─────────────────────────────────────────────────────
+; Drop from wall-jump top (Y=5) to this ledge (Y=3.5) then dash across a 3-unit gap.
+; Single jump + move speed cannot cross it. Jump + dash mid-air can.
+
+[node name="DashLedge" type="CSGBox3D" parent="Stage"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1,  21.0, 3.35, 0)
+size = Vector3(2.0, 0.3, 2.0)
+use_collision = true
+collision_layer = 1
+material_override = SubResource("mat_orange")
+
+; Gap: X = 22 to 25  (3 units — requires dash)
+
+[node name="DashLanding" type="CSGBox3D" parent="Stage"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1,  26.5, 3.35, 0)
+size = Vector3(3.0, 0.3, 2.0)
+use_collision = true
+collision_layer = 1
+material_override = SubResource("mat_orange")
+
+; ── DOUBLE JUMP SECTION (green) ───────────────────────────────────────────────
+; Drop from dash landing (Y=3.5) to low platform (Y=1.0).
+; High platform is 2.5 units above low platform:
+;   Single jump = 1.7 units (cannot reach, top would be at 2.7 < 3.5)
+;   Double jump  = 1.7 + 1.7*0.85 = 3.15 units (can reach, lands on 3.5)
+; Very-high platform needs another double jump.
+
+[node name="DoubleJumpLaunch" type="CSGBox3D" parent="Stage"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1,  31.0, 0.85, 0)
+size = Vector3(3.0, 0.3, 2.0)
+use_collision = true
+collision_layer = 1
+material_override = SubResource("mat_green")
+
+; High platform: top at Y=3.5 → 2.5 units above launch (top=1.0)
+[node name="DoubleJumpHigh" type="CSGBox3D" parent="Stage"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1,  35.5, 3.35, 0)
+size = Vector3(3.0, 0.3, 2.0)
+use_collision = true
+collision_layer = 1
+material_override = SubResource("mat_green")
+
+; Very-high platform: top at Y=5.5 → 2.0 units above high (top=3.5)
+[node name="DoubleJumpVeryHigh" type="CSGBox3D" parent="Stage"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1,  40.0, 5.35, 0)
+size = Vector3(3.0, 0.3, 2.0)
+use_collision = true
+collision_layer = 1
+material_override = SubResource("mat_green")
+
+; ── FINISH PAD ────────────────────────────────────────────────────────────────
+[node name="FinishPad" type="CSGBox3D" parent="Stage"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1,  46.0, 5.35, 0)
+size = Vector3(6.0, 0.3, 2.0)
+use_collision = true
+collision_layer = 1
+material_override = SubResource("mat_grey")
+
+; Back wall — prevents falling off the right side.
+[node name="BackWall" type="CSGBox3D" parent="Stage"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1,  49.15, 3.0, 0)
+size = Vector3(0.3, 7.0, 2.0)
+use_collision = true
+collision_layer = 1
+material_override = SubResource("mat_grey")
+
+; ─────────────────────────────────────────────────────────────────────────────
+; ECHO (player)
+; ─────────────────────────────────────────────────────────────────────────────
+
+[node name="Echo" type="CharacterBody3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1,  0.0, 0.35, 0.0)
+collision_layer = 2
+collision_mask = 1
+floor_snap_length = 0.05
+motion_mode = 0
+up_direction = Vector3(0, 1, 0)
+script = ExtResource("2")
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="Echo"]
+shape = SubResource("capsule")
+
+[node name="Sprite3D" type="Sprite3D" parent="Echo"]
+pixel_size = 0.01
+billboard = 0
+shaded = false
+double_sided = true
+
+[node name="MovementComponent" type="Node" parent="Echo"]
+script = ExtResource("3")

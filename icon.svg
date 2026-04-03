@@ -1,0 +1,20 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="128" height="128" viewBox="0 0 128 128">
+  <!-- Echoes of the Great Root — Kodama spirit icon -->
+  <rect width="128" height="128" rx="16" fill="#0a0814"/>
+  <!-- Root tendrils -->
+  <path d="M64 100 Q40 80 30 50 Q50 65 64 60 Q78 65 98 50 Q88 80 64 100Z" fill="#2a5c1a" opacity="0.8"/>
+  <!-- Kodama spirit body -->
+  <ellipse cx="64" cy="55" rx="18" ry="22" fill="#c8f0a0"/>
+  <!-- Eyes -->
+  <ellipse cx="57" cy="50" rx="4" ry="5" fill="#0a2010"/>
+  <ellipse cx="71" cy="50" rx="4" ry="5" fill="#0a2010"/>
+  <!-- Eye glow -->
+  <ellipse cx="57" cy="49" rx="1.5" ry="2" fill="#80ff40" opacity="0.9"/>
+  <ellipse cx="71" cy="49" rx="1.5" ry="2" fill="#80ff40" opacity="0.9"/>
+  <!-- Crown roots -->
+  <path d="M54 33 Q52 22 46 16" stroke="#5a9c2a" stroke-width="2.5" fill="none" stroke-linecap="round"/>
+  <path d="M64 30 Q64 18 64 12" stroke="#5a9c2a" stroke-width="2.5" fill="none" stroke-linecap="round"/>
+  <path d="M74 33 Q76 22 82 16" stroke="#5a9c2a" stroke-width="2.5" fill="none" stroke-linecap="round"/>
+  <!-- Heart-sap glow -->
+  <ellipse cx="64" cy="62" rx="8" ry="5" fill="#60d030" opacity="0.5"/>
+</svg>
