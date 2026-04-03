@@ -38,6 +38,12 @@ extends Node
 # ── Wall Jump ─────────────────────────────────────────────────────────────────
 @export var wall_jump_horizontal: float = 4.0
 @export var wall_jump_vertical: float = 7.0
+@export var wall_slide_speed: float = 1.8   # max fall speed when sliding
+
+# ── Collision masks ───────────────────────────────────────────────────────────
+# Layer 1 (World)=1, Layer 3 (Enemies)=4 in bitmask
+const _MASK_NORMAL: int = 5   # layers 1 + 3 — blocked by world and enemies
+const _MASK_DASH: int   = 1   # layer 1 only — passes through enemies
 
 # ── Derived (computed in _ready) ──────────────────────────────────────────────
 var jump_velocity: float    # positive = upward in 3D
@@ -61,6 +67,7 @@ var _dash_dir: float = 1.0
 func _ready() -> void:
 	_body = get_parent() as CharacterBody3D
 	assert(_body != null, "MovementComponent must be a direct child of CharacterBody3D")
+	_body.collision_mask = _MASK_NORMAL
 	_recalc_jump()
 
 func _recalc_jump() -> void:
@@ -100,8 +107,16 @@ func _apply_gravity(delta: float) -> void:
 	if Input.is_action_pressed("move_down") and _body.velocity.y < 0.0:
 		grav *= fast_fall_multiplier
 
+	# Wall slide: pressing into wall while falling → reduce gravity, cap fall speed
+	var wall_sliding := _is_pressing_into_wall() and _body.velocity.y < 0.0
+	if wall_sliding:
+		grav *= 0.12
+
 	# Subtract gravity (downward), clamp to terminal velocity
 	_body.velocity.y = maxf(_body.velocity.y - grav * delta, -max_fall_speed)
+
+	if wall_sliding:
+		_body.velocity.y = maxf(_body.velocity.y, -wall_slide_speed)
 
 # ── Jump ──────────────────────────────────────────────────────────────────────
 func _handle_jump() -> void:
@@ -159,12 +174,14 @@ func _handle_dash(delta: float) -> void:
 		_dash_timer -= delta
 		if _dash_timer <= 0.0:
 			is_dashing = false
+			_body.collision_mask = _MASK_NORMAL
 			_body.velocity.x = _dash_dir * move_speed
 			_body.velocity.y = 0.0
 		return
 	if (dash_buffered or Input.is_action_just_pressed("dash")) and _dash_cooldown_timer <= 0.0:
 		dash_buffered = false
 		is_dashing = true
+		_body.collision_mask = _MASK_DASH
 		_dash_timer = dash_duration
 		_dash_cooldown_timer = dash_cooldown
 		var h := Input.get_axis("move_left", "move_right")
@@ -184,3 +201,9 @@ func _tick_timers(delta: float) -> void:
 	_coyote_timer        = maxf(0.0, _coyote_timer - delta)
 	_jump_buffer_timer   = maxf(0.0, _jump_buffer_timer - delta)
 	_dash_cooldown_timer = maxf(0.0, _dash_cooldown_timer - delta)
+
+func _is_pressing_into_wall() -> bool:
+	if not _body.is_on_wall():
+		return false
+	var input_dir := Input.get_axis("move_left", "move_right")
+	return signf(input_dir) == -signf(_body.get_wall_normal().x)
