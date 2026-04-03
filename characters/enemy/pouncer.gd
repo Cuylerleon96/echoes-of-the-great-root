@@ -15,7 +15,8 @@ enum State { IDLE, ALERT, POUNCE, RECOVER, RETURN, STUNNED }
 @export var damage: int            = 1
 @export var gravity: float         = 22.0
 
-@onready var _mesh: MeshInstance3D = $Mesh
+@onready var _mesh: MeshInstance3D        = $Mesh
+@onready var _anim_sprite: AnimatedSprite3D = $AnimatedSprite3D
 
 var _state: State          = State.IDLE
 var _timer: float          = 0.0
@@ -52,6 +53,7 @@ func _physics_process(delta: float) -> void:
 		State.STUNNED: _tick_stunned(delta)
 
 	move_and_slide()
+	_update_animation()
 
 # ── States ────────────────────────────────────────────────────────────────────
 
@@ -161,6 +163,34 @@ func reset() -> void:
 	_pounce_elapsed = 0.0
 	_lost_timer     = 0.0
 	_player         = null
+
+# ── Animation ─────────────────────────────────────────────────────────────────
+
+func _current_anim_name() -> StringName:
+	match _state:
+		State.ALERT:   return &"alert"
+		State.POUNCE:  return &"pounce"
+		State.RECOVER: return &"land"
+		State.RETURN:  return &"walk"
+		State.STUNNED: return &"stunned"
+	return &"idle"
+
+func _update_animation() -> void:
+	_anim_sprite.flip_h = _mesh.scale.x < 0.0
+
+	var anim := _current_anim_name()
+	var frames := _anim_sprite.sprite_frames
+	var sprites_ready := frames != null \
+			and frames.has_animation(anim) \
+			and frames.get_frame_count(anim) > 0
+	if not sprites_ready:
+		_mesh.visible = true
+		_anim_sprite.visible = false
+		return
+	_mesh.visible = false
+	_anim_sprite.visible = true
+	if _anim_sprite.animation != anim:
+		_anim_sprite.play(anim)
 
 # ── Helpers ───────────────────────────────────────────────────────────────────
 

@@ -1,0 +1,77 @@
+[gd_scene format=3 uid="uid://dnk7y2fxb9p03"]
+
+[ext_resource type="Script" uid="uid://clulfk7ia5u0r" path="res://characters/enemy/pouncer.gd" id="1"]
+
+[sub_resource type="CapsuleShape3D" id="capsule"]
+radius = 0.2
+height = 0.6
+
+[sub_resource type="CapsuleMesh" id="capsule_mesh"]
+radius = 0.2
+height = 0.6
+
+[sub_resource type="StandardMaterial3D" id="mat_enemy"]
+albedo_color = Color(0.85, 0.15, 0.1, 1)
+emission_enabled = true
+emission = Color(0.5, 0.05, 0.0, 1)
+emission_energy_multiplier = 0.4
+
+[sub_resource type="BoxShape3D" id="hurt_shape"]
+size = Vector3(0.45, 0.55, 0.45)
+
+[sub_resource type="SpriteFrames" id="sprite_frames"]
+animations = [{
+"frames": [],
+"loop": true,
+"name": &"idle",
+"speed": 8.0
+}, {
+"frames": [],
+"loop": false,
+"name": &"alert",
+"speed": 8.0
+}, {
+"frames": [],
+"loop": false,
+"name": &"pounce",
+"speed": 12.0
+}, {
+"frames": [],
+"loop": false,
+"name": &"land",
+"speed": 10.0
+}, {
+"frames": [],
+"loop": true,
+"name": &"walk",
+"speed": 8.0
+}, {
+"frames": [],
+"loop": true,
+"name": &"stunned",
+"speed": 6.0
+}]
+
+[node name="Pouncer" type="CharacterBody3D"]
+collision_layer = 4
+collision_mask = 1
+script = ExtResource("1")
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="."]
+shape = SubResource("capsule")
+
+[node name="Mesh" type="MeshInstance3D" parent="."]
+mesh = SubResource("capsule_mesh")
+surface_material_override/0 = SubResource("mat_enemy")
+
+[node name="AnimatedSprite3D" type="AnimatedSprite3D" parent="."]
+visible = false
+sprite_frames = SubResource("sprite_frames")
+animation = &"idle"
+
+[node name="HurtZone" type="Area3D" parent="."]
+collision_layer = 0
+collision_mask = 2
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="HurtZone"]
+shape = SubResource("hurt_shape")

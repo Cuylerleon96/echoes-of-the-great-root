@@ -9,7 +9,8 @@ enum State { IDLE, CHASE, STUNNED }
 @export var move_speed: float   = 1.6
 @export var damage: int         = 1
 
-@onready var _mesh: MeshInstance3D = $Mesh
+@onready var _mesh: MeshInstance3D        = $Mesh
+@onready var _anim_sprite: AnimatedSprite3D = $AnimatedSprite3D
 
 var _state: State      = State.IDLE
 var _player: Node3D    = null
@@ -36,8 +37,10 @@ func _physics_process(delta: float) -> void:
 
 	# Gentle hover bob on the mesh (body stays level)
 	_mesh.position.y = sin(Time.get_ticks_msec() * 0.002) * 0.07
+	_anim_sprite.position.y = _mesh.position.y
 
 	move_and_slide()
+	_update_animation()
 
 # ── States ────────────────────────────────────────────────────────────────────
 
@@ -87,6 +90,35 @@ func reset() -> void:
 	velocity        = Vector3.ZERO
 	global_position = _spawn_pos
 	show()
+
+# ── Animation ─────────────────────────────────────────────────────────────────
+
+func _current_anim_name() -> StringName:
+	if _dead:
+		return &"death"
+	match _state:
+		State.CHASE:   return &"chase"
+		State.STUNNED: return &"stunned"
+	return &"idle"
+
+func _update_animation() -> void:
+	if absf(velocity.x) > 0.05:
+		_anim_sprite.flip_h = velocity.x < 0.0
+		_mesh.scale.x = signf(velocity.x)
+
+	var anim := _current_anim_name()
+	var frames := _anim_sprite.sprite_frames
+	var sprites_ready := frames != null \
+			and frames.has_animation(anim) \
+			and frames.get_frame_count(anim) > 0
+	if not sprites_ready:
+		_mesh.visible = true
+		_anim_sprite.visible = false
+		return
+	_mesh.visible = false
+	_anim_sprite.visible = true
+	if _anim_sprite.animation != anim:
+		_anim_sprite.play(anim)
 
 # ── Helpers ───────────────────────────────────────────────────────────────────
 
