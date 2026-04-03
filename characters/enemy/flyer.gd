@@ -15,6 +15,7 @@ var _state: State      = State.IDLE
 var _player: Node3D    = null
 var _stun_timer: float = 0.0
 var _spawn_pos: Vector3
+var _dead: bool        = false
 
 func _ready() -> void:
 	motion_mode = MOTION_MODE_FLOATING
@@ -24,6 +25,8 @@ func _ready() -> void:
 	$HurtZone.body_entered.connect(_on_hurt_zone_body_entered)
 
 func _physics_process(delta: float) -> void:
+	if _dead:
+		return
 	velocity.z = 0.0
 
 	match _state:
@@ -56,16 +59,20 @@ func _tick_chase(delta: float) -> void:
 	velocity = velocity.lerp(dir * move_speed, 6.0 * delta)
 
 func _tick_stunned(delta: float) -> void:
-	# Fall under gravity — dies if it drops past the map
 	velocity.x = move_toward(velocity.x, 0.0, 8.0 * delta)
 	velocity.y = maxf(velocity.y - 22.0 * delta, -20.0)
 	if global_position.y < -6.0:
-		reset()
+		_kill()
 		return
 	_stun_timer -= delta
 	if _stun_timer <= 0.0:
 		velocity = Vector3.ZERO
 		_state = State.CHASE
+
+func _kill() -> void:
+	_dead     = true
+	velocity  = Vector3.ZERO
+	hide()
 
 func stun() -> void:
 	_state = State.STUNNED
@@ -73,11 +80,13 @@ func stun() -> void:
 	velocity = Vector3.ZERO
 
 func reset() -> void:
-	global_position = _spawn_pos
-	velocity        = Vector3.ZERO
+	_dead           = false
 	_state          = State.IDLE
 	_stun_timer     = 0.0
 	_player         = null
+	velocity        = Vector3.ZERO
+	global_position = _spawn_pos
+	show()
 
 # ── Helpers ───────────────────────────────────────────────────────────────────
 
