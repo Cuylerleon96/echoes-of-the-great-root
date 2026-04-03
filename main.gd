@@ -77,6 +77,10 @@ func _check_fall() -> void:
 		echo.take_damage(1)
 		# If take_damage triggered _die() (hp hit 0), _die() already overwrote
 		# global_position with SPAWN_POSITION — so death respawn is handled automatically.
+		# Snap the camera so it doesn't lerp back up from below the map.
+		var p := echo.global_position
+		camera.global_position = Vector3(p.x, p.y + camera_y_offset, camera_z_depth)
+		_lookahead_offset = 0.0
 
 ## Returns _last_safe_pos nudged horizontally until it isn't overlapping any live enemy.
 func _clear_respawn_pos(base: Vector3) -> Vector3:
