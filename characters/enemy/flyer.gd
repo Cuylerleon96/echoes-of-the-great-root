@@ -60,7 +60,7 @@ func _tick_stunned(delta: float) -> void:
 	velocity.x = move_toward(velocity.x, 0.0, 8.0 * delta)
 	velocity.y = maxf(velocity.y - 22.0 * delta, -20.0)
 	if global_position.y < -6.0:
-		queue_free()
+		reset()
 		return
 	_stun_timer -= delta
 	if _stun_timer <= 0.0:
