@@ -25,6 +25,7 @@ var _bar_bg:   ColorRect
 var _bar_fill: ColorRect
 
 func _ready() -> void:
+	follow_viewport_enabled = true   # scale with canvas_items stretch, not raw screen pixels
 	_build_ui()
 
 func _process(_delta: float) -> void:
