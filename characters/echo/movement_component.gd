@@ -63,6 +63,7 @@ var _dash_cooldown_timer: float = 0.0
 var _jumps_remaining: int = 1
 var _was_on_floor: bool = false
 var _dash_dir: float = 1.0
+var _air_dashed: bool = false
 
 func _ready() -> void:
 	_body = get_parent() as CharacterBody3D
@@ -178,6 +179,10 @@ func _handle_dash(delta: float) -> void:
 			_body.velocity.x = _dash_dir * move_speed
 			_body.velocity.y = 0.0
 		return
+	# Only one dash per airtime
+	if not _body.is_on_floor() and _air_dashed:
+		dash_buffered = false
+		return
 	if (dash_buffered or Input.is_action_just_pressed("dash")) and _dash_cooldown_timer <= 0.0:
 		dash_buffered = false
 		is_dashing = true
@@ -187,6 +192,8 @@ func _handle_dash(delta: float) -> void:
 		var h := Input.get_axis("move_left", "move_right")
 		_dash_dir = signf(h) if h != 0.0 else facing_direction
 		_body.velocity = Vector3(_dash_dir * dash_speed, 0.0, 0.0)
+		if not _body.is_on_floor():
+			_air_dashed = true
 
 # ── Post-move bookkeeping ─────────────────────────────────────────────────────
 func _post_move() -> void:
@@ -195,6 +202,8 @@ func _post_move() -> void:
 		_coyote_timer = coyote_time   # walked off edge — start coyote window
 	if on_floor:
 		_jumps_remaining = 1          # reset double-jump on landing
+		_air_dashed = false           # reset air dash on landing
+		dash_buffered = false         # discard any midair dash press — must re-press on ground
 	_was_on_floor = on_floor
 
 func _tick_timers(delta: float) -> void:
