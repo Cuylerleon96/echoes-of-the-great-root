@@ -69,4 +69,5 @@ func _follow_camera(delta: float) -> void:
 func _check_fall() -> void:
 	if echo.global_position.y < respawn_y_threshold:
 		echo.global_position = SPAWN_POSITION
-		echo.velocity         = Vector3.ZERO
+		echo.velocity        = Vector3.ZERO
+		echo.take_damage(1)
